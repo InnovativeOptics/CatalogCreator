@@ -1,0 +1,592 @@
+---
+title: "Product Catalog"
+author: "Innovative Optics, 8211 Blaikie Ct., Sarasota, FL, 34240"
+date: "innovativeoptics.com"
+output: pdf_document
+classoption: landscape
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+```
+
+
+```{r,echo=F,warning=F, message=F}
+data_raw <- readxl::read_excel("C:/Users/johnl/OneDrive/Desktop/AMZN/Item_Names/Our_Item_Name_Website.xlsx") %>% 
+  mutate_all(as.factor)
+
+# key_curr_inv <- readxl::read_excel("C:/Users/johnl/OneDrive/Desktop/AMZN/Item_Names/Key_12.8.22.xlsx")
+
+goggles_and_patches <- data_raw %>% 
+  filter(`frames type` == "goggle" | `frames type` == "patch",
+         frames != "8X2",
+         frames != "7X2") %>% 
+  select(`frames`) %>% 
+  left_join(data_raw, by = c("frames")) %>% 
+  mutate("frames" = frames,
+         "frame desc" = `frame desc`,
+         "frames name" = `frames name`,
+         "frames color" = `frames color`,
+         "key feature 1" = `frame highlight 1`,
+         "key feature 2" = `frame highlight 2`,
+         "key feature 3" = `frame highlight 3`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended for use by`,
+         "frame style" = `frame style`,
+         .keep = "none") %>% 
+  mutate("Product Name" = `frames name`,
+         "Manufacturer Part Number" = `frames`,
+         "Description" = `frame desc`,
+         "Color" = `frames color`,
+         "key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended user`,
+         "frame style" = `frame style`,
+         .keep = "none")
+
+flat_frames <- data_raw %>% 
+  filter(`frames type` == "flat")%>% 
+  select(`frames`)
+
+flat_lenses <- data_raw %>% 
+  filter(`lens type` == "flat")%>% 
+  select(`lens`)
+
+curved_frames <- data_raw %>% 
+  filter(`frames type` == "curved")%>% 
+  select(`frames`)
+
+curved_lenses <- data_raw %>% 
+  filter(`lens type` == "curved")%>% 
+  select(`lens`)
+
+color_variations_701 <- data_raw %>% 
+  expand(frames, `701colors`, lens) %>%  
+  filter(`701colors`!=is.na(`701colors`),
+         lens!=is.na(lens),
+         frames == "701") 
+
+vars701 <- right_join(color_variations_701, curved_lenses) %>% 
+  left_join(data_raw, by = c("frames")) %>% 
+  mutate("frames" = frames,
+         "701colors" = `701colors.x`,
+         "lens" = lens.x,
+         "frame desc" = `frame desc`,
+         "frames name" = `frames name`,
+         "lens name" = `lens name`,
+         "key feature 1" = `frame highlight 1`,
+         "key feature 2" = `frame highlight 2`,
+         "key feature 3" = `frame highlight 3`,
+         "search frame" = `frame key`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended for use by`,
+         "frame style" = `frame style`,
+         .keep = "none") %>% 
+  left_join(data_raw, by = "lens")   %>% 
+  mutate("frames" = frames.x,
+         "701colors" = `701colors.x`,
+         "lens" = lens,
+         "frame desc" = `frame desc.x`,
+         "lens desc" = `lens desc`,
+         "frames name" = `frames name.x`,
+         "lens name" = `lens name.y`,
+         "lens od specs" = `lens od specs`,
+         "lens ce specs" = `lens CE specs`,
+         "key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "key feature 4" = `lens highlight 1`,
+         "key feature 5" = `lens highlight 2`,
+         "search lens" = `lens key`,
+         "search frame" = `search frame`,
+         "frame CE specs" = `frame CE specs.x`,
+         "frames type" = `frames type.x`,
+         "Intended user" = `Intended user`,
+         "frame style" = `frame style.x`,
+         .keep = "none")  %>% 
+  filter(`lens desc` != "A CE certified flat glass lens") %>% 
+  mutate("color desc" = `701colors`,
+         "Color" = `701colors`) %>% 
+  unite(col = "Product Name", c("color desc", "frames name", "lens name"),
+        sep = " ") %>% 
+  unite(col = "Manufacturer Part Number", c("frames", "701colors", "lens"),
+        sep = "") %>% 
+  unite(col = "Description", c("frame desc", "lens desc"),
+        sep = ". ") %>% 
+  unite(col = "Keywords", c("search frame", "search lens"),
+        sep = " ")
+
+color_variations_757 <- data_raw %>% 
+  expand(frames, `757colors`, lens) %>% 
+  filter(`757colors`!=is.na(`757colors`),
+         lens!=is.na(lens),
+         frames == "757")
+
+vars757 <- right_join(color_variations_757, curved_lenses) %>%
+  left_join(data_raw, by = c("frames"))  %>% 
+  mutate("frames" = frames,
+         "757colors" = `757colors.x`,
+         "lens" = lens.x,
+         "frame desc" = `frame desc`,
+         "frames name" = `frames name`,
+         "lens name" = `lens name`,
+         "key feature 1" = `frame highlight 1`,
+         "key feature 2" = `frame highlight 2`,
+         "key feature 3" = `frame highlight 3`,
+         "search frame" = `frame key`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended for use by`,
+         "frame style" = `frame style`,
+         .keep = "none") %>% 
+  left_join(data_raw, by = "lens") %>% 
+  mutate("frames" = frames.x,
+         "757colors" = `757colors.x`,
+         "lens" = lens,
+         "frame desc" = `frame desc.x`,
+         "lens desc" = `lens desc`,
+         "frames name" = `frames name.x`,
+         "lens name" = `lens name.y`,
+         "lens od specs" = `lens od specs`,
+         "lens ce specs" = `lens CE specs`,
+         "key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "key feature 4" = `lens highlight 1`,
+         "key feature 5" = `lens highlight 2`,
+         "search lens" = `lens key`,
+         "search frame" = `search frame`,
+         "frame CE specs" = `frame CE specs.x`,
+         "frames type" = `frames type.x`,
+         "Intended user" = `Intended user`,
+         "frame style" = `frame style.x`,
+         .keep = "none") %>% 
+  filter(`lens desc` != "A CE certified flat glass lens") %>% 
+  mutate("color desc" = `757colors`,
+         "Color" = `757colors`) %>% 
+  unite(col = "Product Name", c("color desc", "frames name", "lens name"),
+        sep = " ") %>%
+  unite(col = "Manufacturer Part Number", c("frames", "757colors", "lens"),
+        sep = "") %>%
+  unite(col = "Description", c("frame desc", "lens desc"),
+        sep = ". ")  %>% 
+  unite(col = "Keywords", c("search frame", "search lens"),
+        sep = " ")
+  
+
+color_variations_C740 <- data_raw %>% 
+  expand(frames, `C740colors`, lens) %>% 
+  filter(`C740colors`!=is.na(`C740colors`),
+         lens!=is.na(lens),
+         frames == "C740") 
+
+varsC740 <- right_join(color_variations_C740, flat_lenses) %>%
+  left_join(data_raw, by = c("frames")) %>% 
+  mutate("frames" = frames,
+         "C740colors" = `C740colors.x`,
+         "lens" = lens.x,
+         "frame desc" = `frame desc`,
+         "frames name" = `frames name`,
+         "lens name" = `lens name`,
+         "key feature 1" = `frame highlight 1`,
+         "key feature 2" = `frame highlight 2`,
+         "key feature 3" = `frame highlight 3`,
+         "search frame" = `frame key`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended for use by`,
+         "frame style" = `frame style`,
+         .keep = "none") %>% 
+  left_join(data_raw, by = "lens") %>% 
+  mutate("frames" = frames.x,
+         "C740colors" = `C740colors.x`,
+         "lens" = lens,
+         "frame desc" = `frame desc.x`,
+         "lens desc" = `lens desc`,
+         "lens od specs" = `lens od specs`,
+         "lens ce specs" = `lens CE specs`,
+         "frames name" = `frames name.x`,
+         "lens name" = `lens name.y`,
+         "key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "key feature 4" = `lens highlight 1`,
+         "key feature 5" = `lens highlight 2`,
+         "search lens" = `lens key`,
+         "search frame" = `search frame`,
+         "frame CE specs" = `frame CE specs.x`,
+         "frames type" = `frames type.x`,
+         "Intended user" = `Intended user`,
+         "frame style" = `frame style.x`,
+         .keep = "none") %>% 
+  filter(`lens desc` != "A CE certified flat glass lens") %>% 
+  mutate("color desc" = `C740colors`,
+         "Color" = `C740colors`) %>% 
+  unite(col = "Product Name", c("color desc", "frames name", "lens name"),
+        sep = " ") %>% 
+  unite(col = "Manufacturer Part Number", c("frames", "C740colors", "lens"),
+        sep = "") %>% 
+  unite(col = "Description", c("frame desc", "lens desc"),
+        sep = ". ") %>% 
+  unite(col = "Keywords", c("search frame", "search lens"),
+        sep = " ")
+  
+
+lens_frames <-  data_raw %>% 
+  expand(frames, lens) 
+
+choice_626 <- lens_frames %>% 
+  filter(lens != is.na(lens),
+         frames == "626")  %>% 
+  left_join(data_raw, by = c("frames")) %>% 
+  mutate("lens" = lens.x) %>% 
+  left_join(flat_lenses) %>% 
+  left_join(curved_lenses) %>% 
+  mutate("frames" = frames,
+         "lens" = lens.x,
+         "frame desc" = `frame desc`,
+         "frames name" = `frames name`,
+         "frames color" = `frames color`,
+         "key feature 1" = `frame highlight 1`,
+         "key feature 2" = `frame highlight 2`,
+         "key feature 3" = `frame highlight 3`,
+         "search frame" = `frame key`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended for use by`,
+         "frame style" = `frame style`,
+         .keep = "none") %>% 
+  left_join(data_raw, by = "lens") %>% 
+  mutate("frames" = frames.x,
+         "lens" = lens,
+         "frame desc" = `frame desc.x`,
+         "frames name" = `frames name.x`,
+         "lens desc" = `lens desc`,
+         "lens name" = `lens name`,
+         "lens od specs" = `lens od specs`,
+         "lens ce specs" = `lens CE specs`,
+         "Color" = `frames color.x`,
+         "key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "key feature 4" = `lens highlight 1`,
+         "key feature 5" = `lens highlight 2`,
+         "search lens" = `lens key`,
+         "search frame" = `search frame`,
+         "frame CE specs" = `frame CE specs.x`,
+         "frames type" = `frames type.x`,
+         "Intended user" = `Intended user`,
+         "frame style" = `frame style.x`,
+         .keep = "none") %>%
+  unite(col = "Product Name", c("frames name", "lens name"),
+        sep = " ") %>% 
+  unite(col = "Manufacturer Part Number", c("frames", "lens"),
+        sep = "") %>% 
+  unite(col = "Description", c("frame desc", "lens desc"),
+        sep = ". ") %>% 
+  unite(col = "Keywords", c("search frame", "search lens"),
+        sep = " ")
+
+flat_choices <- lens_frames %>% 
+  right_join(flat_frames) %>%
+  right_join(flat_lenses) %>% 
+  filter(lens != is.na(lens)) %>% 
+left_join(data_raw, by = c("frames")) %>% 
+  mutate("lens" = lens.x) %>% 
+  left_join(flat_lenses) %>% 
+  left_join(curved_lenses) %>% 
+  mutate("frames" = frames,
+         "lens" = lens.x,
+         "frame desc" = `frame desc`,
+         "frames name" = `frames name`,
+         "frames color" = `frames color`,
+         "key feature 1" = `frame highlight 1`,
+         "key feature 2" = `frame highlight 2`,
+         "key feature 3" = `frame highlight 3`,
+         "search frame" = `frame key`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended for use by`,
+         "frame style" = `frame style`,
+         .keep = "none") %>% 
+  left_join(data_raw, by = "lens") %>% 
+  mutate("frames" = frames.x,
+         "lens" = lens,
+         "frame desc" = `frame desc.x`,
+         "frames name" = `frames name.x`,
+         "lens desc" = `lens desc`,
+         "lens name" = `lens name`,
+         "lens od specs" = `lens od specs`,
+         "lens ce specs" = `lens CE specs`,
+         "Color" = `frames color.x`,
+         "key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "key feature 4" = `lens highlight 1`,
+         "key feature 5" = `lens highlight 2`,
+         "search lens" = `lens key`,
+         "search frame" = `search frame`,
+         "frame CE specs" = `frame CE specs.x`,
+         "frames type" = `frames type.x`,
+         "Intended user" = `Intended user`,
+         "frame style" = `frame style.x`,
+         .keep = "none") %>% 
+  filter(`lens desc` != "A CE certified curved glass lens") %>%
+  unite(col = "Product Name", c("frames name", "lens name"),
+        sep = " ") %>% 
+  unite(col = "Manufacturer Part Number", c("frames", "lens"),
+        sep = "") %>% 
+  unite(col = "Description", c("frame desc", "lens desc"),
+        sep = ". ")  %>% 
+  unite(col = "Keywords", c("search frame", "search lens"),
+        sep = " ") %>% 
+  distinct(`Product Name`,
+           .keep_all = T)
+
+curv_choices <- lens_frames %>% 
+  right_join(curved_frames) %>%
+  right_join(curved_lenses) %>% 
+  filter(lens != is.na(lens)) %>% 
+  left_join(data_raw, by = c("frames")) %>% 
+  mutate("lens" = lens.x) %>% 
+  left_join(flat_lenses) %>% 
+  left_join(curved_lenses) %>% 
+  mutate("frames" = frames,
+         "lens" = lens.x,
+         "frame desc" = `frame desc`,
+         "frames name" = `frames name`,
+         "frames color" = `frames color`,
+         "key feature 1" = `frame highlight 1`,
+         "key feature 2" = `frame highlight 2`,
+         "key feature 3" = `frame highlight 3`,
+         "search frame" = `frame key`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended for use by`,
+         "frame style" = `frame style`,
+         .keep = "none") %>% 
+  left_join(data_raw, by = "lens") %>% 
+  mutate("frames" = frames.x,
+         "lens" = lens,
+         "frame desc" = `frame desc.x`,
+         "frames name" = `frames name.x`,
+         "lens desc" = `lens desc`,
+         "lens name" = `lens name`,
+         "lens od specs" = `lens od specs`,
+         "lens ce specs" = `lens CE specs`,
+         "Color" = `frames color.x`,
+         "key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "key feature 4" = `lens highlight 1`,
+         "key feature 5" = `lens highlight 2`,
+         "search lens" = `lens key`,
+         "search frame" = `search frame`,
+         "frame CE specs" = `frame CE specs.x`,
+         "frames type" = `frames type.x`,
+         "Intended user" = `Intended user`,
+         "frame style" = `frame style.x`,
+         .keep = "none") %>%
+  filter(`lens desc` != "A CE certified flat glass lens") %>%
+  unite(col = "Product Name", c("frames name", "lens name"),
+        sep = " ") %>% 
+  unite(col = "Manufacturer Part Number", c("frames", "lens"),
+        sep = "") %>% 
+  unite(col = "Description", c("frame desc", "lens desc"),
+        sep = ". ")%>% 
+  unite(col = "Keywords", c("search frame", "search lens"),
+        sep = " ")
+
+choice_8x2 <- lens_frames %>% 
+  filter(lens != is.na(lens),
+         frames == "8X2",
+         lens == ".Pi14"|
+           lens == ".Pi15") %>% 
+  left_join(data_raw, by = c("frames")) %>% 
+  mutate("lens" = lens.x) %>% 
+  left_join(flat_lenses) %>% 
+  left_join(curved_lenses) %>% 
+  mutate("frames" = frames,
+         "lens" = lens.x,
+         "frame desc" = `frame desc`,
+         "frames name" = `frames name`,
+         "frames color" = `frames color`,
+         "key feature 1" = `frame highlight 1`,
+         "key feature 2" = `frame highlight 2`,
+         "key feature 3" = `frame highlight 3`,
+         "search frame" = `frame key`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended for use by`,
+         "frame style" = `frame style`,
+         .keep = "none") %>% 
+  left_join(data_raw, by = "lens") %>% 
+  mutate("frames" = frames.x,
+         "lens" = lens,
+         "frame desc" = `frame desc.x`,
+         "frames name" = `frames name.x`,
+         "lens desc" = `lens desc`,
+         "lens name" = `lens name`,
+         "lens od specs" = `lens od specs`,
+         "lens ce specs" = `lens CE specs`,
+         "Color" = `frames color.x`,
+         "key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "key feature 4" = `lens highlight 1`,
+         "key feature 5" = `lens highlight 2`,
+         "search lens" = `lens key`,
+         "search frame" = `search frame`,
+         "frame CE specs" = `frame CE specs.x`,
+         "frames type" = `frames type.x`,
+         "Intended user" = `Intended user`,
+         "frame style" = `frame style.x`,
+         .keep = "none") %>%
+  unite(col = "Product Name", c("frames name", "lens name"),
+        sep = " ") %>% 
+  unite(col = "Manufacturer Part Number", c("frames", "lens"),
+        sep = "") %>% 
+  unite(col = "Description", c("frame desc", "lens desc"),
+        sep = ". ") %>% 
+  unite(col = "Keywords", c("search frame", "search lens"),
+        sep = " ")
+  
+choice_7x2 <- lens_frames %>% 
+  filter(lens != is.na(lens),
+         frames == "7X2",
+         lens == ".Pi1"| 
+         lens == ".Pi3"|
+         lens == ".Pi7"|
+         lens == ".Pi11") %>% 
+  left_join(data_raw, by = c("frames")) %>% 
+  mutate("lens" = lens.x) %>% 
+  left_join(flat_lenses) %>% 
+  left_join(curved_lenses) %>% 
+  mutate("frames" = frames,
+         "lens" = lens.x,
+         "frame desc" = `frame desc`,
+         "frames name" = `frames name`,
+         "frames color" = `frames color`,
+         "key feature 1" = `frame highlight 1`,
+         "key feature 2" = `frame highlight 2`,
+         "key feature 3" = `frame highlight 3`,
+         "search frame" = `frame key`,
+         "frame CE specs" = `frame CE specs`,
+         "frames type" = `frames type`,
+         "Intended user" = `Intended for use by`,
+         "frame style" = `frame style`,
+         .keep = "none") %>% 
+  left_join(data_raw, by = "lens") %>% 
+  mutate("frames" = frames.x,
+         "lens" = lens,
+         "frame desc" = `frame desc.x`,
+         "frames name" = `frames name.x`,
+         "lens desc" = `lens desc`,
+         "lens name" = `lens name`,
+         "lens od specs" = `lens od specs`,
+         "lens ce specs" = `lens CE specs`,
+         "Color" = `frames color.x`,
+         "key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "key feature 4" = `lens highlight 1`,
+         "key feature 5" = `lens highlight 2`,
+         "search lens" = `lens key`,
+         "search frame" = `search frame`,
+         "frame CE specs" = `frame CE specs.x`,
+         "frames type" = `frames type.x`,
+         "Intended user" = `Intended user`,
+         "frame style" = `frame style.x`,
+         .keep = "none") %>%
+  unite(col = "Product Name", c("frames name", "lens name"),
+        sep = " ") %>% 
+  unite(col = "Manufacturer Part Number", c("frames", "lens"),
+        sep = "") %>% 
+  unite(col = "Description", c("frame desc", "lens desc"),
+        sep = ". ") %>% 
+  unite(col = "Keywords", c("search frame", "search lens"),
+        sep = " ")
+```
+
+```{r,echo=F,warning=F, message=F}
+product_list1 <- full_join(vars701, vars757)
+
+product_list2 <- full_join(product_list1, varsC740)
+
+goggles1 <- full_join(choice_626, choice_7x2)
+
+goggles <- full_join(goggles1, choice_8x2)
+
+product_list3 <- full_join(curv_choices, flat_choices)
+
+product_list4 <- full_join(goggles, product_list3)
+
+product_list5 <- full_join(product_list4, product_list2)%>% 
+  distinct(`Manufacturer Part Number`,
+           .keep_all = T)
+
+final_catalog <- full_join(goggles_and_patches,  product_list5)
+  #%>% 
+  # filter(`Manufacturer Part Number` %in% key_curr_inv$`Manufacturer Part Number`)
+
+final_names <- final_catalog %>%  
+  mutate("Manufacturer Part Number" = `Manufacturer Part Number`,
+         .keep = "none")
+
+final_desc <- final_catalog %>%  
+  mutate("Product Description" = Description,
+         .keep = "none")
+
+final_prod_names <- final_catalog %>%  
+  mutate("Product Name" = `Product Name`,
+         .keep = "none")
+
+final_colors <- final_catalog %>%  
+  mutate("Color" = `Color`,
+         .keep = "none")
+
+final_highlights <- final_catalog %>% 
+  mutate("key feature 1" = `key feature 1`,
+         "key feature 2" = `key feature 2`,
+         "key feature 3" = `key feature 3`,
+         "key feature 4" = `key feature 4`,
+         "key feature 5" = `key feature 5`,
+         .keep = "none")
+
+final_keywords <- final_catalog %>% 
+  mutate("Keywords" = Keywords,
+         .keep = "none")
+```
+
+```{r,echo=F,warning=F, fig.align='center'}
+write.csv(final_catalog, "Catalog.csv")
+
+write_tsv(final_names, "PartNums.tsv")
+
+write_tsv(final_desc, "Descs.tsv")
+
+write_tsv(final_prod_names, "ProdNames.tsv")
+
+write_tsv(final_colors, "Color.tsv")
+
+write_tsv(final_highlights, "highlights.tsv")
+
+write_tsv(final_keywords, "keywords.tsv")
+
+#asin_data <- readxl::read_excel("C:/Users/johnl/OneDrive/Desktop/AMZN/Item_Names/asins-broken.xlsx")
+
+#kable(tibble(final_names, final_prod_names, asin_data)) 
+
+#knitr::include_graphics("io_logo_wide.jpg")
+
+#write_tsv(asin_data, "asins.tsv")
+```
+
+
